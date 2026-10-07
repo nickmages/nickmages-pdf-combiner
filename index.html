@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f8fafc" />
+    <title>Paperform — PDF page mixer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root { color-scheme: light; font-family: "DM Sans", sans-serif; }
+      body { font-family: "DM Sans", sans-serif; }
+      h1, h2, h3, .display { font-family: "Manrope", sans-serif; }
+      .drop-active { border-color: #6366f1 !important; background: #eef2ff !important; }
+      .page-card.is-selected { border-color: #818cf8; box-shadow: 0 0 0 2px #c7d2fe; }
+      .page-card.is-selected .page-check { background: #4f46e5; border-color: #4f46e5; color: white; }
+      .scrollbar-thin { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .spinner { animation: spin .8s linear infinite; }
+    </style>
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+    <header class="border-b border-slate-200/80 bg-white">
+      <div class="mx-auto flex max-w-[1600px] items-center justify-between px-5 py-4 sm:px-8">
+        <a href="#" class="flex items-center gap-3" aria-label="Paperform home">
+          <span class="grid h-10 w-10 place-items-center rounded-xl bg-indigo-600 text-white shadow-sm shadow-indigo-200">
+            <svg viewBox="0 0 24 24" fill="none" class="h-6 w-6" aria-hidden="true"><path d="M7 3.75h6.2L18 8.56v11.69H7a2 2 0 0 1-2-2v-12.5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M13 4v5h5M8.5 13h7M8.5 16.5h7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </span>
+          <span><span class="display block text-[17px] font-extrabold tracking-tight">paperform</span><span class="block text-[11px] font-medium tracking-wide text-slate-500">PDF PAGE MIXER</span></span>
+        </a>
+        <div class="hidden items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 sm:flex">
+          <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+          Files stay on your device
+        </div>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-[1600px] px-5 py-7 sm:px-8 sm:py-10">
+      <div class="mb-7 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+        <div>
+          <p class="mb-2 text-xs font-bold uppercase tracking-[.18em] text-indigo-600">Your documents, your order</p>
+          <h1 class="display text-3xl font-extrabold tracking-tight sm:text-4xl">Make one PDF, your way.</h1>
+          <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-500">Bring pages together from multiple files. Select, arrange, and export — privately, right in your browser.</p>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-slate-500">
+          <span class="grid h-6 w-6 place-items-center rounded-full bg-indigo-100 font-bold text-indigo-700">1</span> Add PDFs
+          <span class="mx-1 text-slate-300">/</span>
+          <span class="grid h-6 w-6 place-items-center rounded-full bg-indigo-100 font-bold text-indigo-700">2</span> Choose pages
+          <span class="mx-1 text-slate-300">/</span>
+          <span class="grid h-6 w-6 place-items-center rounded-full bg-indigo-100 font-bold text-indigo-700">3</span> Export
+        </div>
+      </div>
+
+      <div class="grid items-start gap-6 xl:grid-cols-[300px_minmax(0,1fr)_300px]">
+        <aside class="space-y-5">
+          <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="mb-4 flex items-center justify-between">
+              <h2 class="display text-sm font-bold">Add documents</h2>
+              <span id="file-count" class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">0 files</span>
+            </div>
+            <label id="drop-zone" for="file-input" class="group flex cursor-pointer flex-col items-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-7 text-center transition hover:border-indigo-300 hover:bg-indigo-50/50">
+              <span class="mb-3 grid h-11 w-11 place-items-center rounded-xl bg-white text-indigo-600 shadow-sm ring-1 ring-slate-200 transition group-hover:scale-105">
+                <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" aria-hidden="true"><path d="M12 15V4m0 0L8 8m4-4 4 4M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <span class="text-sm font-semibold text-slate-800">Drop PDFs here</span>
+              <span class="mt-1 text-xs text-slate-500">or <span class="font-semibold text-indigo-600">browse files</span></span>
+              <span class="mt-3 text-[11px] text-slate-400">PDF files · multiple allowed</span>
+            </label>
+            <input id="file-input" class="sr-only" type="file" accept="application/pdf,.pdf" multiple />
+            <div id="upload-status" class="mt-3 hidden rounded-lg bg-indigo-50 px-3 py-2 text-xs text-indigo-700" role="status" aria-live="polite"></div>
+            <div id="file-list" class="mt-4 space-y-2"></div>
+          </section>
+          <section class="rounded-2xl border border-indigo-100 bg-indigo-50/70 p-4">
+            <div class="flex gap-3">
+              <span class="mt-0.5 text-indigo-600"><svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" aria-hidden="true"><path d="M12 3.5 4 7v5c0 4.4 3.4 7.7 8 8.9 4.6-1.2 8-4.5 8-8.9V7l-8-3.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <div><h3 class="text-xs font-bold text-indigo-950">Private by design</h3><p class="mt-1 text-xs leading-5 text-indigo-800/75">Your PDFs are processed locally and never uploaded to a server.</p></div>
+            </div>
+          </section>
+        </aside>
+
+        <section class="min-w-0 rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div class="border-b border-slate-100 px-5 py-4 sm:px-6">
+            <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+              <div><h2 class="display text-base font-bold">Choose your pages</h2><p id="workspace-caption" class="mt-1 text-xs text-slate-500">Upload a PDF to see its pages here.</p></div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button id="select-all" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40" disabled>Select all</button>
+                <button id="deselect-all" class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40" disabled>Clear</button>
+              </div>
+            </div>
+            <div class="mt-4 flex flex-col gap-2 rounded-xl bg-slate-50 p-3 sm:flex-row sm:items-center">
+              <label for="page-ranges" class="shrink-0 text-xs font-semibold text-slate-700">Quick select pages</label>
+              <input id="page-ranges" type="text" placeholder="e.g. 1-3, 5, 8" class="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100" />
+              <button id="apply-ranges" class="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-700">Apply to each PDF</button>
+              <span id="range-error" class="hidden text-xs font-medium text-rose-600 sm:basis-full"></span>
+            </div>
+            <p class="mt-2 text-[11px] text-slate-400">Page numbers are applied to every PDF that contains them.</p>
+          </div>
+          <div id="page-workspace" class="scrollbar-thin min-h-[440px] space-y-8 overflow-x-hidden px-5 py-6 sm:px-6">
+            <div id="empty-state" class="grid min-h-[390px] place-items-center">
+              <div class="max-w-xs text-center">
+                <div class="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-slate-100 text-slate-400"><svg viewBox="0 0 24 24" fill="none" class="h-8 w-8" aria-hidden="true"><path d="M7 3.75h6.2L18 8.56v11.69H7a2 2 0 0 1-2-2v-12.5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M13 4v5h5" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+                <p class="text-sm font-semibold text-slate-700">Your pages will show up here</p><p class="mt-1 text-xs leading-5 text-slate-500">Add one or more PDF files to start building your document.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="xl:sticky xl:top-5">
+          <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <div class="border-b border-slate-100 px-5 py-4">
+              <div class="flex items-center justify-between"><h2 class="display text-sm font-bold">Your document</h2><span id="selected-count" class="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700">0 pages</span></div>
+              <p class="mt-1 text-xs text-slate-500">Drag pages to set the final order.</p>
+            </div>
+            <div id="selected-list" class="scrollbar-thin max-h-[400px] min-h-[150px] space-y-2 overflow-y-auto p-3">
+              <div id="selected-empty" class="grid min-h-[125px] place-items-center rounded-xl border border-dashed border-slate-200 px-4 text-center text-xs leading-5 text-slate-400">Select a page to add it to your document.</div>
+            </div>
+            <div class="border-t border-slate-100 bg-slate-50/70 p-4">
+              <div class="mb-4 flex items-center justify-between text-xs"><span class="text-slate-500">Pages in final PDF</span><span id="summary-count" class="font-bold text-slate-800">0</span></div>
+              <div class="space-y-2">
+                <button id="preview-button" class="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40" disabled>
+                  <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4" aria-hidden="true"><path d="M2.8 12s3.2-6 9.2-6 9.2 6 9.2 6-3.2 6-9.2 6-9.2-6-9.2-6Z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.7"/></svg>Preview document
+                </button>
+                <button id="download-button" class="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm shadow-indigo-200 transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-40" disabled>
+                  <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 16v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Download PDF
+                </button>
+              </div>
+              <p id="output-status" class="mt-3 hidden text-center text-xs text-slate-500" role="status" aria-live="polite"></p>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </main>
+
+    <dialog id="preview-dialog" class="h-[88vh] w-[min(1100px,94vw)] max-w-none rounded-2xl border-0 p-0 shadow-2xl backdrop:bg-slate-950/60">
+      <div class="flex h-full flex-col bg-white">
+        <div class="flex items-center justify-between border-b border-slate-200 px-5 py-3"><div><h2 class="display text-sm font-bold">Document preview</h2><p id="preview-caption" class="text-xs text-slate-500"></p></div><button id="close-preview" class="grid h-9 w-9 place-items-center rounded-lg text-slate-500 hover:bg-slate-100" aria-label="Close preview"><svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div>
+        <iframe id="preview-frame" title="Merged PDF preview" class="min-h-0 flex-1 bg-slate-100"></iframe>
+      </div>
+    </dialog>
+    <div id="toast" class="pointer-events-none fixed bottom-5 left-1/2 z-50 hidden -translate-x-1/2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-medium text-white shadow-xl" role="status" aria-live="polite"></div>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
